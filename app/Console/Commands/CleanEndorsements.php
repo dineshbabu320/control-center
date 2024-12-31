@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Endorsement;
 use App\Notifications\EndorsementExpiredNotification;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class CleanEndorsements extends Command
 {
@@ -49,6 +50,7 @@ class CleanEndorsements extends Command
                 $endorsement->user->notify(new EndorsementExpiredNotification($endorsement));
             }
         }
+        DB::table('endorsements')->where('expired','=',1)->delete();
 
         $this->info('All expired endorsements have been cleaned.');
     }
