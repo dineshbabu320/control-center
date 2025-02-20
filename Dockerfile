@@ -1,5 +1,5 @@
 # Intermediate build container for front-end resources
-FROM docker.io/library/node:23.5.0-alpine AS frontend
+FROM docker.io/library/node:23.6.1-alpine AS frontend
 # Easy to prune intermediary containers
 LABEL stage=build
 
@@ -21,7 +21,7 @@ EXPOSE 80 443
 # - vim and nano for our egos
 # - ca-certificates for OAuth2
 RUN apt-get update && \
-    apt-get install -y git unzip vim nano ca-certificates && \
+    apt-get install -y git unzip vim nano ca-certificates libpq-dev && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
     a2enmod rewrite ssl
@@ -35,11 +35,11 @@ COPY ./container/configs/php.ini /usr/local/etc/php/php.ini
 
 
 # Install PHP extension(s)
-COPY --from=mlocati/php-extension-installer:2.7.8 /usr/bin/install-php-extensions /usr/local/bin/
+COPY --from=mlocati/php-extension-installer:2.7.14 /usr/bin/install-php-extensions /usr/local/bin/
 # These are the extensions we depend on:
 # $ composer check -f json 2>/dev/null | jq '.[] | select(.name | startswith("ext-")) | .name | sub("ext-"; "")' -r
 # Currently, this seems to only be pdo_mysql.
-RUN install-php-extensions pdo_mysql opcache
+RUN install-php-extensions pdo_mysql pdo_pgsql opcache
 
 # Install composer
 COPY --from=docker.io/library/composer:latest /usr/bin/composer /usr/bin/composer

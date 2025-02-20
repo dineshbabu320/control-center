@@ -28,7 +28,7 @@ return [
     |
     */
     /* x-release-please-start-version */
-    'version' => '6.1.1',
+    'version' => '6.2.0',
     /* x-release-please-end */
 
     /*
@@ -66,6 +66,18 @@ return [
     */
 
     'owner_code' => env('APP_OWNER_CODE', 'UNK'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application mode
+    |--------------------------------------------------------------------------
+    |
+    | Select the correct mode for Control Center logic
+    | Choose between "subdivision" (default) or "division"
+    |
+    */
+
+    'mode' => env('APP_MODE', 'subdivision'),
 
     /*
     |--------------------------------------------------------------------------

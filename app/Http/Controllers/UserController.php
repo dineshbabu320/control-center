@@ -56,7 +56,7 @@ class UserController extends Controller
         } else {
             // Only include users from the division and index by key
             foreach ($response as $data) {
-                if ($data['subdivision'] == config('app.owner_code')) {
+                if ($data[config('app.mode')] == config('app.owner_code')) {
                     $apiUsers[$data['id']] = $data;
                 }
             }
@@ -95,7 +95,12 @@ class UserController extends Controller
     {
         $this->authorize('index', \Auth::user());
 
-        $users = User::with('endorsements')->get();
+        if (config('app.mode') == 'subdivision') {
+            $subdivisions = array_map('trim', explode(',', Setting::get('trainingSubDivisions')));
+            $users = User::whereNotIn('subdivision', $subdivisions)->get();
+        } else {
+            $users = User::whereNot('division', config('app.owner_code'))->get();
+        }
 
         return view('user.other', compact('users'));
     }
@@ -383,7 +388,7 @@ class UserController extends Controller
     }
 
     /**
-     * Display a listing of user's settings
+     * Display a listing of user's reports
      *
      * @return \Illuminate\Http\Response
      */
@@ -437,7 +442,7 @@ class UserController extends Controller
      */
     private function fetchUsersFromVatsimCoreApi()
     {
-        $url = sprintf('https://api.vatsim.net/v2/orgs/subdivision/%s', config('app.owner_code'));
+        $url = sprintf('https://api.vatsim.net/v2/orgs/%s/%s', config('app.mode'), config('app.owner_code'));
         $headers = [
             'X-API-Key' => config('vatsim.core_api_token'),
             'Accept' => 'application/json',
